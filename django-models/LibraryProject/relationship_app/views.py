@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
 from .models import Book, Library
+from .models import UserProfile
 
 def list_books(request):
     """Function-based view to list all books"""
@@ -29,3 +31,24 @@ class LibraryDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.filter(library=self.object)
         return context
+    
+def is_admin(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+def is_librarian(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Librarian'
+
+def is_member(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
+
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
