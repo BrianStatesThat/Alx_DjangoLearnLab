@@ -1,3 +1,5 @@
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 from django.views.generic.detail import DetailView
 from .models import Book, Library
