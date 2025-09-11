@@ -11,7 +11,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', LoginView.as_view(template_name='relationship_app/login.html'), name='login'),
     path('logout/', LogoutView.as_view(template_name='relationship_app/logout.html'), name='logout'),
-    path('books/add/', views.add_book, name='add_book'),
-    path('books/<int:pk>/edit/', views.edit_book, name='edit_book'),
+    path('add_book/', views.add_book, name='add_book'),           # <-- updated
+    path('edit_book/<int:pk>/', views.edit_book, name='edit_book'), # <-- updated
     path('books/<int:pk>/delete/', views.delete_book, name='delete_book'),
 ]
