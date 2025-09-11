@@ -18,9 +18,9 @@ urlpatterns = [
     path('librarian/', views.librarian_view, name='librarian_view'),
     path('member/', views.member_view, name='member_view'),
     # Change these URLs to match what checker expects
-    path('add_book/', views.add_book, name='add_book'),
-    path('edit_book/<int:pk>/', views.edit_book, name='edit_book'),
-    path('delete_book/<int:pk>/', views.delete_book, name='delete_book'),
+    path('books/add/', views.add_book, name='add_book'),
+    path('books/<int:pk>/edit/', views.edit_book, name='edit_book'),
+    path('books/<int:pk>/delete/', views.delete_book, name='delete_book'),
     path('admin/', admin.site.urls),
     path('relationship/', include('relationship_app.urls')),
 ]
