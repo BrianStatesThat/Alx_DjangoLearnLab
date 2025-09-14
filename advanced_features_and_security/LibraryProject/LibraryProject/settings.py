@@ -140,3 +140,35 @@ X_FRAME_OPTIONS = "DENY"  # Prevents your site from being rendered in a frame (c
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents the browser from guessing content types
 CSRF_COOKIE_SECURE = True  # Ensures CSRF cookies are sent only over HTTPS
 SESSION_COOKIE_SECURE = True  # Ensures session cookies are sent only over HTTPS
+
+# --- HTTPS and Security Settings ---
+
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True  # Ensures all traffic is redirected to HTTPS
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # Instructs browsers to use HTTPS for one year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Applies HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allows site to be included in browser preload lists
+
+# Secure cookies
+SESSION_COOKIE_SECURE = True  # Session cookies sent only over HTTPS
+CSRF_COOKIE_SECURE = True     # CSRF cookies sent only over HTTPS
+
+# Secure headers
+X_FRAME_OPTIONS = "DENY"  # Prevents clickjacking by denying framing
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents MIME type sniffing
+SECURE_BROWSER_XSS_FILTER = True    # Enables browser XSS protection
+
+# --- Documentation ---
+# These settings enforce HTTPS, secure cookies, and add browser-side protections.
+# Ensure your web server (Apache/Nginx) is configured with valid SSL/TLS certificates.
+# Example for Nginx:
+#   server {
+#       listen 443 ssl;
+#       server_name yourdomain.com;
+#       ssl_certificate /path/to/cert.pem;
+#       ssl_certificate_key /path/to/key.pem;
+#       ...
+#   }
+# Review these settings before deploying to production. For local development, you may need to set these to False.
