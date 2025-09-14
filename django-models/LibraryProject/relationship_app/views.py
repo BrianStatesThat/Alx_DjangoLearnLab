@@ -27,11 +27,12 @@ def register(request):
 
 class LibraryDetailView(DetailView):
     model = Library
-    template_name = "relationship_app/library_detail.html"
+    template_name = "relationship_app/library_detail.html"  # <-- Reference to template
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['books'] = Book.objects.filter(library=self.object)
+        context['library'] = self.object  # <-- Reference to 'library'
+        context['books'] = self.object.books.all()
         return context
     
 def is_admin(user):
