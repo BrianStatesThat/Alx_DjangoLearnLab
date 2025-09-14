@@ -160,6 +160,10 @@ X_FRAME_OPTIONS = "DENY"  # Prevents clickjacking by denying framing
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents MIME type sniffing
 SECURE_BROWSER_XSS_FILTER = True    # Enables browser XSS protection
 
+# If your Django app is behind a proxy/load balancer (e.g., on Azure, AWS, Heroku), 
+# this setting ensures Django properly detects HTTPS requests.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # --- Documentation ---
 # These settings enforce HTTPS, secure cookies, and add browser-side protections.
 # Ensure your web server (Apache/Nginx) is configured with valid SSL/TLS certificates.
