@@ -133,3 +133,10 @@ from django.conf import settings
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # ...other fields...
+
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True  # Enables the browser's XSS filtering protection
+X_FRAME_OPTIONS = "DENY"  # Prevents your site from being rendered in a frame (clickjacking protection)
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents the browser from guessing content types
+CSRF_COOKIE_SECURE = True  # Ensures CSRF cookies are sent only over HTTPS
+SESSION_COOKIE_SECURE = True  # Ensures session cookies are sent only over HTTPS
