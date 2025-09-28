@@ -149,6 +149,20 @@ class BookListViewTests(BaseTestCase):
         # Verify book was actually created in database
         self.assertTrue(Book.objects.filter(title='New Test Book').exists())
     
+    def test_create_book_authenticated_with_login(self):
+        logged_in = self.client.login(username="testuser", password="testpass123")
+        self.assertTrue(logged_in)  # Make sure login worked
+        url = reverse("api:book-create")
+        data = {
+        "title": "Login Test Book",
+        "publication_year": 2022,
+        "author": self.author1.id,
+        }
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["message"], "Book created successfully")
+
     def test_create_book_invalid_data(self):
         """
         Test book creation with invalid data (future publication year).
