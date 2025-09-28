@@ -8,7 +8,7 @@ from .permissions import IsAuthenticatedOrReadOnly, IsAdminOrReadOnly, BookAcces
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter  # FIXED: Added OrderingFilter
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer, AuthorSummarySerializer
 
@@ -27,7 +27,7 @@ class BookListView(generics.ListAPIView):
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]  # Public read access
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]  # Now OrderingFilter is available
     filterset_fields = ['author', 'publication_year']
     ordering = ['-created_at']  # Default ordering: newest first
     search_fields = [
@@ -81,15 +81,12 @@ class BookCreateView(generics.CreateAPIView):
         Can add additional logic like setting created_by user here.
         """
         serializer.save()
-        # Example: If you had a created_by field
-        # serializer.save(created_by=self.request.user)
     
     def create(self, request, *args, **kwargs):
         """
         Override create to provide custom response format.
         """
         response = super().create(request, *args, **kwargs)
-        # Customize response data
         response.data = {
             'message': 'Book created successfully',
             'data': response.data
@@ -109,7 +106,7 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Using custom permission
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     def perform_update(self, serializer):
         """
@@ -137,22 +134,15 @@ class BookDeleteView(generics.DestroyAPIView):
     - Delete book instances
     - Restricted to authenticated users only
     - Custom success response
-    - Soft delete potential (commented example)
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can delete
+    permission_classes = [permissions.IsAuthenticated]
     
     def perform_destroy(self, instance):
         """
         Customize the deletion process.
-        
-        Example for soft delete (uncomment if needed):
-        instance.is_active = False
-        instance.save()
         """
-        # For soft delete implementation, you would modify this method
-        # and add an 'is_active' field to your model
         instance.delete()
     
     def destroy(self, request, *args, **kwargs):
@@ -175,7 +165,7 @@ class AuthorListView(generics.ListAPIView):
     queryset = Author.objects.prefetch_related('books').all()
     serializer_class = AuthorSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]  # Now OrderingFilter is available
     filterset_fields = ['name']
     search_fields = ['name']
     ordering_fields = ['name', 'created_at', 'book_count']
@@ -217,9 +207,6 @@ class AuthorDeleteView(generics.DestroyAPIView):
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-"""
-Additional custom views demonstrating advanced DRF features and custom behaviors.
-"""
 
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -233,7 +220,7 @@ class BookViewSet(viewsets.ModelViewSet):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Using custom permission
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get_permissions(self):
         """
@@ -251,7 +238,6 @@ class BookViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         
-        # Filter by publication year range
         min_year = self.request.query_params.get('min_year')
         max_year = self.request.query_params.get('max_year')
         
@@ -283,7 +269,7 @@ class BookViewSet(viewsets.ModelViewSet):
         Example: POST /api/books/1/duplicate/
         """
         original_book = self.get_object()
-        original_book.pk = None  # This will create a new instance
+        original_book.pk = None
         original_book.title = f"{original_book.title} (Copy)"
         original_book.save()
         serializer = self.get_serializer(original_book)
@@ -302,11 +288,9 @@ class CustomBookCreateView(generics.CreateAPIView):
         """
         Extended creation logic with additional validation and side effects.
         """
-        # Custom validation beyond serializer
         publication_year = serializer.validated_data.get('publication_year')
         title = serializer.validated_data.get('title')
         
-        # Check for duplicate books (same title and author in same year)
         author = serializer.validated_data.get('author')
         duplicate_exists = Book.objects.filter(
             title=title,
@@ -320,10 +304,5 @@ class CustomBookCreateView(generics.CreateAPIView):
                 'non_field_errors': ['A book with this title and author already exists for this year.']
             })
         
-        # Save the instance
         book = serializer.save()
-        
-        # Example: Additional side effects (logging, notifications, etc.)
         print(f"New book created: {book.title} by {book.author.name}")
-        
-        # You could also send signals or trigger async tasks here
