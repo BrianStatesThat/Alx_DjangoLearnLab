@@ -8,7 +8,7 @@ from .permissions import IsAuthenticatedOrReadOnly, IsAdminOrReadOnly, BookAcces
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter  # FIXED: Added OrderingFilter
+# Remove the SearchFilter import - we'll use string references only
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer, AuthorSummarySerializer
 
@@ -16,76 +16,57 @@ from .serializers import AuthorSerializer, BookSerializer, AuthorSummarySerializ
 class BookListView(generics.ListAPIView):
     """
     ListView for retrieving all books with filtering, searching, and ordering capabilities.
-    
-    Features:
-    - List all books with pagination
-    - Filter by author, publication year
-    - Search in book titles
-    - Order by various fields
-    - Public read-only access
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # Public read access
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter,'rest_framework.filters.OrderingFilter']  # Now OrderingFilter is available
+    permission_classes = [permissions.AllowAny]
+    
+    # Use string references for ALL filter backends
+    filter_backends = [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',      # String reference
+        'rest_framework.filters.OrderingFilter'     # String reference
+    ]
+    
     filterset_fields = ['author', 'publication_year']
-    ordering = ['-created_at']  # Default ordering: newest first
+    ordering = ['-created_at']
     search_fields = [
-        'title',           # Basic search in title
-        'author__name',    # Search in author name
-        '^title',          # Starts-with search in title
-        '=title',          # Exact match search in title
+        'title',
+        'author__name',
+        '^title',
+        '=title',
     ]
     ordering_fields = [
         'title',
         'publication_year', 
         'created_at', 
         'updated_at',
-        'author__name',    # Order by related author name
+        'author__name',
     ]
 
 
 class BookDetailView(generics.RetrieveAPIView):
     """
     DetailView for retrieving a single book by ID.
-    
-    Features:
-    - Retrieve specific book with full details
-    - Includes nested author information
-    - Public read-only access
-    - Optimized database queries with select_related
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # Public read access
+    permission_classes = [permissions.AllowAny]
     lookup_field = 'pk'
 
 
 class BookCreateView(generics.CreateAPIView):
     """
     CreateView for adding a new book with custom validation and permissions.
-    
-    Features:
-    - Create new book instances
-    - Custom validation for publication_year
-    - Restricted to authenticated users only
-    - Custom success response format
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can create
+    permission_classes = [permissions.IsAuthenticated]
     
     def perform_create(self, serializer):
-        """
-        Customize the creation process.
-        Can add additional logic like setting created_by user here.
-        """
         serializer.save()
     
     def create(self, request, *args, **kwargs):
-        """
-        Override create to provide custom response format.
-        """
         response = super().create(request, *args, **kwargs)
         response.data = {
             'message': 'Book created successfully',
@@ -97,27 +78,15 @@ class BookCreateView(generics.CreateAPIView):
 class BookUpdateView(generics.UpdateAPIView):
     """
     UpdateView for modifying an existing book with partial updates support.
-    
-    Features:
-    - Update existing book instances
-    - Supports both PUT (full update) and PATCH (partial update)
-    - Restricted to authenticated users only
-    - Custom validation enforcement
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     
     def perform_update(self, serializer):
-        """
-        Customize the update process.
-        """
         serializer.save()
     
     def update(self, request, *args, **kwargs):
-        """
-        Override update to provide custom response format.
-        """
         response = super().update(request, *args, **kwargs)
         response.data = {
             'message': 'Book updated successfully',
@@ -129,26 +98,15 @@ class BookUpdateView(generics.UpdateAPIView):
 class BookDeleteView(generics.DestroyAPIView):
     """
     DeleteView for removing a book with proper permissions and custom responses.
-    
-    Features:
-    - Delete book instances
-    - Restricted to authenticated users only
-    - Custom success response
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def perform_destroy(self, instance):
-        """
-        Customize the deletion process.
-        """
         instance.delete()
     
     def destroy(self, request, *args, **kwargs):
-        """
-        Override destroy to provide custom response format.
-        """
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({
@@ -157,7 +115,6 @@ class BookDeleteView(generics.DestroyAPIView):
         }, status=status.HTTP_204_NO_CONTENT)
 
 
-# Enhanced Author Views with similar functionality
 class AuthorListView(generics.ListAPIView):
     """
     ListView for authors with filtering and search capabilities.
@@ -165,7 +122,14 @@ class AuthorListView(generics.ListAPIView):
     queryset = Author.objects.prefetch_related('books').all()
     serializer_class = AuthorSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]  # Now OrderingFilter is available
+    
+    # Use string references for ALL filter backends
+    filter_backends = [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',      # String reference
+        'rest_framework.filters.OrderingFilter'     # String reference
+    ]
+    
     filterset_fields = ['name']
     search_fields = ['name']
     ordering_fields = ['name', 'created_at', 'book_count']
@@ -221,6 +185,13 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    # Use string references for ViewSet too
+    filter_backends = [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',      # String reference
+        'rest_framework.filters.OrderingFilter'     # String reference
+    ]
     
     def get_permissions(self):
         """
