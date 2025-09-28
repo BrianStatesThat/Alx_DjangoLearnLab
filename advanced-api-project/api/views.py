@@ -27,7 +27,7 @@ class BookListView(generics.ListAPIView):
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]  # Public read access
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]  # Now OrderingFilter is available
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter,'rest_framework.filters.OrderingFilter']  # Now OrderingFilter is available
     filterset_fields = ['author', 'publication_year']
     ordering = ['-created_at']  # Default ordering: newest first
     search_fields = [
