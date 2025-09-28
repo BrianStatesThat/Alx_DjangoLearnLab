@@ -16,8 +16,8 @@ book_urlpatterns = [
     
     # Write operations - authenticated users only
     path('books/create/', views.BookCreateView.as_view(), name='book-create'),
-    path('books/<int:pk>/update/', views.BookUpdateView.as_view(), name='book-update'),
-    path('books/<int:pk>/delete/', views.BookDeleteView.as_view(), name='book-delete'),
+    path('books/update/', views.BookUpdateView.as_view(), name='book-update'),
+    path('books/delete/', views.BookDeleteView.as_view(), name='book-delete'),
 ]
 
 # Author URL patterns - similar structure
