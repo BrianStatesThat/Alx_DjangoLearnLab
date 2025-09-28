@@ -2,13 +2,13 @@
 Advanced API views for Book model using Django REST Framework's generic views.
 Includes CRUD operations, custom permissions, and optimized query handling.
 """
-from django_filters import rest_framework"
+from django_filters import rest_framework
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from .permissions import IsAuthenticatedOrReadOnly, IsAdminOrReadOnly, BookAccessPermission
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import SearchFilter
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer, AuthorSummarySerializer
 
