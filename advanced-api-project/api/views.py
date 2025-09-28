@@ -28,9 +28,20 @@ class BookListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]  # Public read access
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['author', 'publication_year']
-    search_fields = ['title', 'author__name']
-    ordering_fields = ['title', 'publication_year', 'created_at']
     ordering = ['-created_at']  # Default ordering: newest first
+    search_fields = [
+        'title',           # Basic search in title
+        'author__name',    # Search in author name
+        '^title',          # Starts-with search in title
+        '=title',          # Exact match search in title
+    ]
+    ordering_fields = [
+        'title',
+        'publication_year', 
+        'created_at', 
+        'updated_at',
+        'author__name',    # Order by related author name
+    ]
 
 
 class BookDetailView(generics.RetrieveAPIView):
