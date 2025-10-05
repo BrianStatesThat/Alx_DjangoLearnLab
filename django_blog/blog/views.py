@@ -7,6 +7,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Post
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
 
 def register(request):
     if request.method == 'POST':
@@ -63,3 +65,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+    
+
+def index(request):
+    return render(request, 'blog/index.html')
