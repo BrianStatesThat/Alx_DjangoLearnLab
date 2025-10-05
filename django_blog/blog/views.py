@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-# Create your views here.
-from .forms import CustomUserCreationForm
+from django.contrib.auth import login, authenticate
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .models import Post
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from .forms import CustomUserCreationForm, CommentForm
+from .models import Post, Comment
 
+# Home page
+def index(request):
+    return render(request, 'blog/index.html')
+
+# Registration
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -19,12 +22,16 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'blog/register.html', {'form': form})
+
+# Profile
 @login_required
 def profile(request):
     if request.method == 'POST':
         request.user.email = request.POST.get('email')
         request.user.save()
     return render(request, 'blog/profile.html', {'user': request.user})
+
+# Blog post views
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -65,7 +72,24 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
-    
 
-def index(request):
-    return render(request, 'blog/index.html')
+# Comment views
+@login_required
+
+
+class CommentCreateView(CreateView):
+    model = Comment
+    fields = ['post', 'author', 'content']
+    template_name = 'blog/comment_form.html'
+    success_url = reverse_lazy('post-list')  # Adjust if you want to redirect elsewhere
+
+class CommentUpdateView(UpdateView):
+    model = Comment
+    fields = ['content']
+    template_name = 'blog/comment_form.html'
+    success_url = reverse_lazy('post-list')
+
+class CommentDeleteView(DeleteView):
+    model = Comment
+    template_name = 'blog/comment_confirm_delete.html'
+    success_url = reverse_lazy('post-list')
