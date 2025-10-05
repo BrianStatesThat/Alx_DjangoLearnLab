@@ -77,7 +77,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 @login_required
 
 
-class CommentCreateView(CreateView):
+class add_comment(CreateView):
     model = Comment
     fields = ['post', 'author', 'content']
     template_name = 'blog/comment_form.html'
