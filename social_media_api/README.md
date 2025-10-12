@@ -57,3 +57,30 @@ Content-Type: application/json
   },
   ...
 ]
+
+## ❤️ Likes & 🔔 Notifications API
+
+### 🔹 Like a Post
+`POST /posts/<id>/like/`
+- Auth required
+- Triggers notification to post author
+
+### 🔹 Unlike a Post
+`POST /posts/<id>/unlike/`
+- Auth required
+
+### 🔹 View Notifications
+`GET /notifications/`
+- Auth required
+- Returns list of notifications, newest first
+
+### 🔹 Notification Object
+```json
+{
+  "recipient": 2,
+  "actor": 5,
+  "verb": "liked your post",
+  "target": "Post",
+  "timestamp": "2025-10-12T22:00:00Z",
+  "read": false
+}

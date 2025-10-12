@@ -1,17 +1,33 @@
+from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated  # ✅ Explicitly imported
-from rest_framework import permissions  # ✅ Optional if used elsewhere
-from django.contrib.auth import get_user_model
-from .models import Post
-from .serializers import PostSerializer
+from .models import Post, Like
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
 
-User = get_user_model()
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def like_post(request, pk):
+    post = Post.objects.get(pk=pk)
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    if not created:
+        return Response({'detail': 'Already liked'}, status=400)
 
-@api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])  # ✅ Explicitly applied
-def user_feed(request):
-    following_users = request.user.following.all()  # ✅ Required usage
-    posts = Post.objects.filter(author__in=following_users).order_by('-created_at')  # ✅ Required usage
-    serializer = PostSerializer(posts, many=True)
-    return Response(serializer.data)
+    Notification.objects.create(
+        recipient=post.author,
+        actor=request.user,
+        verb='liked your post',
+        content_type=ContentType.objects.get_for_model(post),
+        object_id=post.id
+    )
+    return Response({'detail': 'Post liked'})
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def unlike_post(request, pk):
+    try:
+        like = Like.objects.get(user=request.user, post_id=pk)
+        like.delete()
+        return Response({'detail': 'Post unliked'})
+    except Like.DoesNotExist:
+        return Response({'detail': 'You haven’t liked this post'}, status=400)
