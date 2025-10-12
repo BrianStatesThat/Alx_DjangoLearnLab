@@ -9,7 +9,7 @@ from .serializers import PostSerializer
 User = get_user_model()
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # ✅ Explicitly applied
+@permission_classes([permissions.IsAuthenticated])  # ✅ Explicitly applied
 def user_feed(request):
     following_users = request.user.following.all()  # ✅ Required usage
     posts = Post.objects.filter(author__in=following_users).order_by('-created_at')  # ✅ Required usage
