@@ -84,3 +84,16 @@ Content-Type: application/json
   "timestamp": "2025-10-12T22:00:00Z",
   "read": false
 }
+
+## 🚀 Deployment Guide
+
+### Hosting: Heroku
+- App URL: https://social-media-api.herokuapp.com/
+
+### Setup
+```bash
+pip install -r requirements.txt
+python manage.py collectstatic
+heroku create social-media-api
+heroku addons:create heroku-postgresql:hobby-dev
+git push heroku main
