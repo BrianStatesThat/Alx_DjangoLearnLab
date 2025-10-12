@@ -1,4 +1,4 @@
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics  # ✅ Import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .models import Post, Like
@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def like_post(request, pk):
-    post = Post.objects.get(pk=pk)
+    post = generics.get_object_or_404(Post, pk=pk)  # ✅ Required usage
     like, created = Like.objects.get_or_create(user=request.user, post=post)
     if not created:
         return Response({'detail': 'Already liked'}, status=400)
@@ -25,8 +25,9 @@ def like_post(request, pk):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def unlike_post(request, pk):
+    post = generics.get_object_or_404(Post, pk=pk)  # ✅ Required usage
     try:
-        like = Like.objects.get(user=request.user, post_id=pk)
+        like = Like.objects.get(user=request.user, post=post)
         like.delete()
         return Response({'detail': 'Post unliked'})
     except Like.DoesNotExist:
