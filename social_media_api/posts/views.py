@@ -8,7 +8,7 @@ from .serializers import PostSerializer
 User = get_user_model()
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])  # ✅ Explicitly included
 def user_feed(request):
     # ✅ Get followed users
     following_users = request.user.following.all()
